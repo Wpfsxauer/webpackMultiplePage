@@ -1,0 +1,12 @@
+.wrap{
+  width: 100%;
+  height: 100%;
+  overflow-y: hidden;
+}
+.el-table .warning-row {
+  background: oldlace;
+}
+
+.el-table .success-row {
+  background: #f0f9eb;
+}
