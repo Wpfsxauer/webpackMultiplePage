@@ -1,122 +1,57 @@
-# jyclaim
-
-> A Vue.js project
-
-## Build Setup
-
-``` bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-```
-
-For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
-### 用掘金－Markdown 编辑器写文章
-
-欢迎使用 掘金－Markdown 编辑器撰写技术文章，只专注于内容和技术，不再费心排版的问题。这是一份简要的 Markdown 引导指南，希望可以帮助您顺利的开始使用 Markdown 编辑器。
-
-### 丰富的快捷键
-
-本 Markdown 编辑器支持丰富的格式快捷键，可以非常便捷、轻松的使用 Markdown 语言，形成优美的排版和内容格式。
-
-支持的快捷键有：
-
-* 加粗： `Ctrl/Cmd + B`
-* 标题： `Ctrl/Cmd + H`
-* 插入链接： `Ctrl/Cmd + K`
-* 插入代码： `Ctrl/Cmd + Shift + C`
-* 行内代码： `Ctrl/Cmd + Shift + K`
-* 插入图片： `Ctrl/Cmd + Shift + I`
-* 无序列表： `Ctrl/Cmd + Shift + L`
-* 撤销： `Ctrl/Cmd + Z`
-
-### 常用语法
-
-#### 标题
-
-> 语法格式：** '#'+'空格'+'文本' **
-
-# 一级标题
-## 二级标题
-### 三级标题
-#### 四级标题
-##### 五级标题
-###### 六级标题
-
-#### 列表
-
-> 无序列表语法格式：** '-' + '空格' ＋ '文本' **
-
-- 文本一
-- 文本二
-- 文本三
-
-> 有序列表语法格式：** '数字' + '.' + '空格' + '文本' **
-
-1. 文本一
-2. 文本二
-3. 文本三
-
-> 任务列表语法格式：** '-' + '空格' + '[ ]' + '文本' **
-
-- [x] 文本一
-- [ ] 文本二
-- [ ] 文本三
-
-#### 链接和图片
-
-在 Markdown 中插入链接不需要其他按钮，你只需要使用`［显示文本］(链接地址)`这样的格式语法即可。例如：
-[稀土掘金](https://gold.xitu.io)
-插入图片的语法与插入链接的语法很像，只是前面多了一个 `!`.语法如下：
-`![图片的标注](图片链接地址)`
-
-#### 引用
-
-> 语法：** '>'+'空格'+'文本' **
+* **前言**
+     
+       性能优化是前端工程领域不可缺少的一部分，追求变态级优化，是我们前端人员的不懈追求。下面是我关于前端wbpack多页
+       面配置的一些理解，希望对大家的开发有所帮助。
+#### 一、在config/index配置configuration对象。
+       configuration:[
+        'sipevaluate',
+        'sipapprove'
+      ],//在这里我们可以配置需要打包的界面，非常灵活。
 
 
-例如：
-
-> Markdown 是一种轻量级标记语言，它允许人们使用易读易写的纯文本格式编写文档，然后转换成格式丰富的HTML页面。
-
-#### 代码
-
-如下是代码段的语法：
-
-<pre>
-```编程语言
- 这是代码段
-```
-</pre>
-
-例如：
-
-``` python
-def bubbleSort(alist):
- for passnum in range(len(alist)-1,0,-1):
- #print alist,passnum
- for i in range(passnum):
- if alist[i]>alist[i+1]:
- temp = alist[i]
- alist[i] = alist[i+1]
- alist[i+1] = temp
- return alist
-```
-
-#### 表格
-
-**Markdown　Extra**　表格语法：
+#### 二、在utils里面我们定义入口对象函数。
+        function getMultiEntry (globPath) {
+        
+          let entries = {}, tmp = [];
+        
+          glob.sync(globPath).forEach(entry=> {
+        
+            config.configuration.forEach(value=>{
+        
+              tmp = entry.split('/').splice(-4);
+        
+              if( tmp[2] === value) entries[tmp[2]] = entry;
+        
+            })
+        
+          });
+        
+          return entries;
+        }   
+           这里我们使用了一个核心库 **glob**，它的作用是解析我们传入的路径，然后输出文件路径。
+           比如：我们输入的 路径是 "./src/modules/**/**/*.js".
+           输出结果是：./src/modules/sipapprove/sipapprove.js。
 
 
+#### 三、在utils里面我们定义输出html模板函数。
+     const page = getMultiEntry('./src/modules/**/*.html')
 
-#### 结语
-
-以上是最常见的 Markdown 的语法和格式，如果你还希望深入的学习 Markdown，可以参考这里[Markdown语法](https://www.appinn.com/markdown/)，非常感谢使用** 掘金－Markdown 编辑器**,希望为您提供舒适的写作体验。
+     exports.page = function (plugins,pages = page) {
+    
+      for (let pathname in pages) {
+        const conf = {
+          filename: pathname + '.html',
+          template: pages[pathname],
+          chunks: ['manifest','vendor',pathname],
+          inject: true,
+          hash:true
+        };
+    
+        plugins.push(new HtmlWebpackPlugin(conf));
+      }
+    }
+#### 四、我们配置webpack.dev.conf.js文件。
+     utils.page(module.exports.plugins);
+#### 五、我们配置webpack.prod.conf.js文件。
+     utils.page(webpackConfig.plugins);
+#### github地址：https://github.com/Wpfsxauer/webpackMultiplePage.git
